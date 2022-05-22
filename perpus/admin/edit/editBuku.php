@@ -1,12 +1,11 @@
 <?php
 include '../../db.php';
 
-if (isset($_POST['editBuku']))
-{
+if (isset($_POST['editBuku'])) {
     session_start();
 
     $id = $_POST['update_id_buku'];
-    
+
     $Judul = $_POST['Judul'];
     $Penulis = $_POST['Penulis'];
     $Penerbit = $_POST['Penerbit'];
@@ -15,7 +14,7 @@ if (isset($_POST['editBuku']))
     $petugas = $_SESSION['id'];
 
     // ngambil file lama (file)
-    $cover = mysqli_query($conn, "SELECT cover FROM buku WHERE id = '$id'"); 
+    $cover = mysqli_query($conn, "SELECT cover FROM buku WHERE id = '$id'");
     $cover = mysqli_fetch_array($cover);
     $cover = $cover['cover'];
     // edit file sampul (kalo ada)
@@ -24,18 +23,16 @@ if (isset($_POST['editBuku']))
         $allowedFormat = array('jpg', 'png', 'jpeg');
         $newCover = $_FILES['sampul']['name'];
         $fileformat = explode('.', $cover);
-        $fileformat = $fileformat[1];
-        if (!in_array($fileformat, $allowedFormat))
-        {
+        $fileformat = strtolower($fileformat[1]);
+        if (!in_array($fileformat, $allowedFormat)) {
             echo '<script>
             alert("Format File Salah!");
             window.location="../dashboard.php";
             </script>';
-        }
-        else {
+        } else {
             $fileInsert = $_FILES['sampul']['tmp_name'];
-            unlink("../../sampul/".$cover); // buat delete file lama
-            move_uploaded_file($fileInsert, "../../sampul/".$newCover);
+            unlink("../../sampul/" . $cover); // buat delete file lama
+            move_uploaded_file($fileInsert, "../../sampul/" . $newCover);
             $cover = $newCover;
         }
     }
@@ -44,16 +41,15 @@ if (isset($_POST['editBuku']))
     $lokasiLama = mysqli_fetch_array($lokasiLama);
     $lokasiLama = $lokasiLama['id_rak'];
 
-    if ($Genre == 0 || $Lokasi == 0 ||
-    !filter_var($Penulis, FILTER_VALIDATE_REGEXP, array("options" => array("regexp" => "/^[a-zA-Z\s]+$/"))))
-    {
+    if (
+        $Genre == 0 || $Lokasi == 0 ||
+        !filter_var($Penulis, FILTER_VALIDATE_REGEXP, array("options" => array("regexp" => "/^[a-zA-Z\s]+$/")))
+    ) {
         echo '<script>
         alert("Input salah!");
         
         </script>';
-    }
-    else
-    {
+    } else {
         if ($lokasiLama != $Lokasi) {
             $run_query = mysqli_query($conn, "UPDATE rak SET jumlah_buku = jumlah_buku + 1 WHERE id = '$Lokasi'");
             $run_query = mysqli_query($conn, "UPDATE rak SET jumlah_buku = jumlah_buku - 1 WHERE id = '$lokasiLama'");
@@ -62,15 +58,13 @@ if (isset($_POST['editBuku']))
                 genre = '$Genre', id_petugas = '$petugas', id_rak = '$Lokasi'
                 WHERE id = '$id' ";
         $run_query = mysqli_query($conn, $query);
-    
-        if($run_query)
-        {
+
+        if ($run_query) {
             echo '<script>
             alert("Data Buku Berhasil Diedit!");
             window.location="../dashboard.php";
             </script>';
-        }
-        else {
+        } else {
             echo '<script>
             alert("Data Buku Gagal Diedit!");
             window.location="../dashboard.php";
@@ -78,5 +72,3 @@ if (isset($_POST['editBuku']))
         }
     }
 }
-
-?>
